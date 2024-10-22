@@ -6,6 +6,7 @@
       </svg>
     </div>
     <router-view class="router-view"></router-view>
+    <div class="game-transition" :style="transitionStyle" v-if="showTransition"></div>
   </div>
 </template>
 
@@ -14,7 +15,9 @@ export default {
   name: 'App',
   data() {
     return {
-      showHomeIcon: false
+      showHomeIcon: false,
+      showTransition: false,
+      transitionStyle: {}
     }
   },
   methods: {
@@ -23,6 +26,17 @@ export default {
     },
     updateHomeIconVisibility() {
       this.showHomeIcon = this.$route.path !== '/';
+    },
+    startGameAnimation({ game, centerX, centerY }) {
+      this.showTransition = true;
+      this.transitionStyle = {
+        left: `${centerX}px`,
+        top: `${centerY}px`,
+        backgroundColor: game === '2048' ? '#edc22e' : '#4ec0ca'
+      };
+      setTimeout(() => {
+        this.showTransition = false;
+      }, 1000);
     }
   },
   watch: {
@@ -31,8 +45,11 @@ export default {
     }
   },
   created() {
-    // 在组件创建时立即更新 home 图标的可见性
     this.updateHomeIconVisibility();
+    this.$root.$on('start-game-animation', this.startGameAnimation);
+  },
+  beforeUnmount() {
+    this.$root.$off('start-game-animation', this.startGameAnimation);
   }
 }
 </script>
@@ -90,5 +107,26 @@ html, body {
 .router-view {
   flex: 1;
   overflow-y: auto;
+}
+
+.game-transition {
+  position: fixed;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  z-index: 1000;
+  pointer-events: none;
+  animation: expandGame 1s ease-out forwards;
+}
+
+@keyframes expandGame {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(200);
+    opacity: 1;
+  }
 }
 </style>
