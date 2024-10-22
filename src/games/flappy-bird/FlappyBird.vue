@@ -1,6 +1,7 @@
 <template>
   <div class="flappy-bird" @click="jump" @keydown.space="jump" tabindex="0">
     <canvas ref="gameCanvas"></canvas>
+    <div class="score">分数: {{ score }}</div>
     <div v-if="gameOver" class="game-over">
       游戏结束
       <p>得分: {{ score }}</p>
@@ -45,7 +46,7 @@ export default {
       pipeWidth: 52,
       basePipeSpawnInterval: 2500, // 基础管道生成间隔（毫秒）
       minPipeSpawnInterval: 1500, // 最小管道生成间隔（毫秒）
-      pipeSpawnInterval: 2500, // 当前管道生成间隔
+      pipeSpawnInterval: 2500, // 当前管��生成间隔
       lastPipeSpawn: 0,
       nextPipeSpawn: 0, // 新增：下一个管道生成的时间
       difficultyFactor: 0.002, // 减小难度增加因子
@@ -224,11 +225,6 @@ export default {
         this.bird.height
       );
       this.ctx.restore();
-
-      // 绘制分数
-      this.ctx.fillStyle = 'white';
-      this.ctx.font = `${24 * this.scale}px Arial`;
-      this.ctx.fillText(`分数: ${this.score}`, 10 * this.scale, 30 * this.scale);
     },
     jump() {
       if (this.gameOver) {
@@ -308,6 +304,16 @@ export default {
 
 canvas {
   display: block;
+}
+
+.score {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
 }
 
 .game-over, .start-screen {
