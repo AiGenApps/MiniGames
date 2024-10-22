@@ -16,6 +16,13 @@
         </div>
       </div>
     </div>
+    <div v-if="gameOver" class="game-over-modal">
+      <div class="modal-content">
+        <h2>游戏结束</h2>
+        <p>你的得分是: {{ score }}</p>
+        <button @click="newGame">再来一局</button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -29,12 +36,14 @@ export default {
       touchStartX: null,
       touchStartY: null,
       newTiles: [],
+      gameOver: false,
     }
   },
   methods: {
     newGame() {
       this.grid = Array(4).fill().map(() => Array(4).fill(0));
       this.score = 0;
+      this.gameOver = false;
       this.initTilePositions();
       this.addNewTile();
       this.addNewTile();
@@ -113,6 +122,9 @@ export default {
       if (moved) {
         this.grid = newGrid;
         this.addNewTile();
+        if (this.isGameOver()) {
+          this.gameOver = true;
+        }
       }
     },
     handleKeydown(e) {
@@ -165,6 +177,28 @@ export default {
     isNewTile(row, col) {
       return this.newTiles.some(tile => tile.i === row && tile.j === col);
     },
+    isGameOver() {
+      // 检查是否还有空格
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (this.grid[i][j] === 0) {
+            return false;
+          }
+        }
+      }
+      // 检查是否还有可以合并的相邻格子
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (
+            (i < 3 && this.grid[i][j] === this.grid[i + 1][j]) ||
+            (j < 3 && this.grid[i][j] === this.grid[i][j + 1])
+          ) {
+            return false;
+          }
+        }
+      }
+      return true;
+    },
   },
   mounted() {
     this.newGame();
@@ -186,6 +220,7 @@ export default {
   padding: 10px;
   box-sizing: border-box;
   touch-action: none;
+  overflow: hidden;
 }
 
 .game-content {
@@ -194,6 +229,8 @@ export default {
   align-items: center;
   max-width: 500px;
   width: 100%;
+  height: 100%;
+  overflow-y: auto;
 }
 
 .game-info {
@@ -292,6 +329,7 @@ button {
     align-items: center;
     max-width: none;
     height: 100%;
+    overflow: hidden;
   }
 
   .game-info {
@@ -303,6 +341,7 @@ button {
   .grid-container {
     width: auto;
     height: 80vh;
+    max-height: 80vmin;
     padding-bottom: 0;
     aspect-ratio: 1 / 1;
   }
@@ -325,5 +364,33 @@ button {
     font-size: 0.9rem;
     padding: 8px 16px;
   }
+}
+
+.game-over-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+}
+
+.modal-content button {
+  margin-top: 20px;
 }
 </style>

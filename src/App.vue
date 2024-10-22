@@ -5,7 +5,7 @@
         <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
       </svg>
     </div>
-    <router-view></router-view>
+    <router-view class="router-view"></router-view>
   </div>
 </template>
 
@@ -32,6 +32,13 @@ export default {
 </script>
 
 <style>
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 #app {
   position: relative;
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -39,9 +46,10 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .home-icon {
@@ -71,5 +79,10 @@ export default {
     top: 20px;
     left: 20px;
   }
+}
+
+.router-view {
+  flex: 1;
+  overflow-y: auto;
 }
 </style>

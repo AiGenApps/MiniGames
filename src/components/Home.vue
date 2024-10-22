@@ -33,6 +33,9 @@ export default {
   padding: 20px;
   max-width: 600px;
   margin: 0 auto;
+  height: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
 }
 
 h1 {
