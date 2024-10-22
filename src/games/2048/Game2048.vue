@@ -1,5 +1,5 @@
 <template>
-  <div class="game-2048">
+  <div class="game-2048" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
     <h2>2048 游戏</h2>
     <div class="score">分数: {{ score }}</div>
     <div class="grid">
@@ -20,6 +20,8 @@ export default {
     return {
       grid: [],
       score: 0,
+      touchStartX: null,
+      touchStartY: null,
     }
   },
   methods: {
@@ -105,6 +107,45 @@ export default {
         case 'ArrowDown': this.move('down'); break;
       }
     },
+    handleTouchStart(event) {
+      this.touchStartX = event.touches[0].clientX;
+      this.touchStartY = event.touches[0].clientY;
+    },
+
+    handleTouchMove(event) {
+      event.preventDefault(); // 防止页面滚动
+    },
+
+    handleTouchEnd(event) {
+      if (!this.touchStartX || !this.touchStartY) {
+        return;
+      }
+
+      const touchEndX = event.changedTouches[0].clientX;
+      const touchEndY = event.changedTouches[0].clientY;
+
+      const deltaX = touchEndX - this.touchStartX;
+      const deltaY = touchEndY - this.touchStartY;
+
+      // 判断滑动方向
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX > 0) {
+          this.move('right');
+        } else {
+          this.move('left');
+        }
+      } else {
+        if (deltaY > 0) {
+          this.move('down');
+        } else {
+          this.move('up');
+        }
+      }
+
+      // 重置触摸起始点
+      this.touchStartX = null;
+      this.touchStartY = null;
+    },
   },
   mounted() {
     this.newGame();
@@ -121,6 +162,7 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  touch-action: none; /* 防止浏览器的默认触摸行为 */
 }
 
 .grid {
