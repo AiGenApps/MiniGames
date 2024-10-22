@@ -1,0 +1,176 @@
+<template>
+  <div class="game-2048">
+    <h2>2048 游戏</h2>
+    <div class="score">分数: {{ score }}</div>
+    <div class="grid">
+      <div v-for="(row, rowIndex) in grid" :key="rowIndex" class="row">
+        <div v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :class="'cell-' + cell">
+          {{ cell !== 0 ? cell : '' }}
+        </div>
+      </div>
+    </div>
+    <button @click="newGame">新游戏</button>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'Game2048View',
+  data() {
+    return {
+      grid: [],
+      score: 0,
+    }
+  },
+  methods: {
+    newGame() {
+      this.grid = Array(4).fill().map(() => Array(4).fill(0));
+      this.score = 0;
+      this.addNewTile();
+      this.addNewTile();
+    },
+    addNewTile() {
+      const emptyCells = [];
+      for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+          if (this.grid[i][j] === 0) {
+            emptyCells.push({i, j});
+          }
+        }
+      }
+      if (emptyCells.length > 0) {
+        const {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+        this.grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+      }
+    },
+    move(direction) {
+      let moved = false;
+      let newGrid = JSON.parse(JSON.stringify(this.grid));
+
+      const rotate = (grid) => {
+        return grid[0].map((val, index) => grid.map(row => row[index]).reverse());
+      };
+
+      // 向左移动
+      const moveLeft = (row) => {
+        const filtered = row.filter(cell => cell !== 0);
+        const newRow = [];
+        for (let i = 0; i < filtered.length; i++) {
+          if (newRow.length > 0 && newRow[newRow.length - 1] === filtered[i]) {
+            newRow[newRow.length - 1] *= 2;
+            this.score += newRow[newRow.length - 1];
+            moved = true;
+          } else {
+            newRow.push(filtered[i]);
+          }
+        }
+        while (newRow.length < 4) {
+          newRow.push(0);
+        }
+        return newRow;
+      };
+
+      // 根据方向旋转网格
+      const rotations = {'left': 0, 'up': 3, 'right': 2, 'down': 1}[direction];
+      for (let i = 0; i < rotations; i++) {
+        newGrid = rotate(newGrid);
+      }
+
+      // 移动
+      newGrid = newGrid.map(row => {
+        const oldRow = [...row];
+        const newRow = moveLeft(row);
+        if (!moved && JSON.stringify(oldRow) !== JSON.stringify(newRow)) {
+          moved = true;
+        }
+        return newRow;
+      });
+
+      // 旋转回原来的方向
+      const reverseRotations = {'left': 0, 'up': 1, 'right': 2, 'down': 3}[direction];
+      for (let i = 0; i < reverseRotations; i++) {
+        newGrid = rotate(newGrid);
+      }
+
+      if (moved) {
+        this.grid = newGrid;
+        this.addNewTile();
+      }
+    },
+    handleKeydown(e) {
+      switch(e.key) {
+        case 'ArrowLeft': this.move('left'); break;
+        case 'ArrowUp': this.move('up'); break;
+        case 'ArrowRight': this.move('right'); break;
+        case 'ArrowDown': this.move('down'); break;
+      }
+    },
+  },
+  mounted() {
+    this.newGame();
+    window.addEventListener('keydown', this.handleKeydown);
+  },
+  beforeUnmount() {
+    window.removeEventListener('keydown', this.handleKeydown);
+  },
+}
+</script>
+
+<style scoped>
+.game-2048 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-rows: repeat(4, 1fr);
+  grid-gap: 10px;
+  background-color: #bbada0;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+}
+
+.cell {
+  width: 80px;
+  height: 80px;
+  background-color: #ccc0b3;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.cell-2 { background-color: #eee4da; color: #776e65; }
+.cell-4 { background-color: #ede0c8; color: #776e65; }
+.cell-8 { background-color: #f2b179; color: #f9f6f2; }
+.cell-16 { background-color: #f59563; color: #f9f6f2; }
+.cell-32 { background-color: #f67c5f; color: #f9f6f2; }
+.cell-64 { background-color: #f65e3b; color: #f9f6f2; }
+.cell-128 { background-color: #edcf72; color: #f9f6f2; }
+.cell-256 { background-color: #edcc61; color: #f9f6f2; }
+.cell-512 { background-color: #edc850; color: #f9f6f2; }
+.cell-1024 { background-color: #edc53f; color: #f9f6f2; }
+.cell-2048 { background-color: #edc22e; color: #f9f6f2; }
+
+.score {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+button {
+  font-size: 18px;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+</style>
