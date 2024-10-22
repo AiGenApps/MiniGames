@@ -20,13 +20,19 @@ export default {
   methods: {
     goHome() {
       this.$router.push('/');
+    },
+    updateHomeIconVisibility() {
+      this.showHomeIcon = this.$route.path !== '/';
     }
   },
   watch: {
-    $route(to) {
-      // 根据路由判断是否显示 home 图标
-      this.showHomeIcon = to.path !== '/';
+    $route() {
+      this.updateHomeIconVisibility();
     }
+  },
+  created() {
+    // 在组件创建时立即更新 home 图标的可见性
+    this.updateHomeIconVisibility();
   }
 }
 </script>
