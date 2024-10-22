@@ -4,7 +4,7 @@
     <div class="score">分数: {{ score }}</div>
     <div class="grid">
       <div v-for="(row, rowIndex) in grid" :key="rowIndex" class="row">
-        <div v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :class="'cell-' + cell">
+        <div v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :class="['cell-' + cell, { 'new-tile': isNewTile(rowIndex, cellIndex) }]">
           {{ cell !== 0 ? cell : '' }}
         </div>
       </div>
@@ -22,14 +22,21 @@ export default {
       score: 0,
       touchStartX: null,
       touchStartY: null,
+      newTiles: [],
     }
   },
   methods: {
     newGame() {
       this.grid = Array(4).fill().map(() => Array(4).fill(0));
       this.score = 0;
+      this.initTilePositions();
       this.addNewTile();
       this.addNewTile();
+    },
+    initTilePositions() {
+      this.tilePositions = this.grid.map((row, i) => 
+        row.map((cell, j) => cell !== 0 ? { row: i, col: j } : null)
+      );
     },
     addNewTile() {
       const emptyCells = [];
@@ -43,11 +50,14 @@ export default {
       if (emptyCells.length > 0) {
         const {i, j} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
         this.grid[i][j] = Math.random() < 0.9 ? 2 : 4;
+        this.newTiles.push({i, j});
+        this.tilePositions[i][j] = { row: i, col: j };  // 立即更新位置
       }
     },
     move(direction) {
       let moved = false;
       let newGrid = JSON.parse(JSON.stringify(this.grid));
+      this.newTiles = [];
 
       const rotate = (grid) => {
         return grid[0].map((val, index) => grid.map(row => row[index]).reverse());
@@ -146,6 +156,9 @@ export default {
       this.touchStartX = null;
       this.touchStartY = null;
     },
+    isNewTile(row, col) {
+      return this.newTiles.some(tile => tile.i === row && tile.j === col);
+    },
   },
   mounted() {
     this.newGame();
@@ -191,6 +204,7 @@ export default {
   align-items: center;
   font-size: 24px;
   font-weight: bold;
+  position: relative;
 }
 
 .cell-2 { background-color: #eee4da; color: #776e65; }
@@ -204,6 +218,21 @@ export default {
 .cell-512 { background-color: #edc850; color: #f9f6f2; }
 .cell-1024 { background-color: #edc53f; color: #f9f6f2; }
 .cell-2048 { background-color: #edc22e; color: #f9f6f2; }
+
+.new-tile {
+  animation: appear 0.2s ease-in-out;
+}
+
+@keyframes appear {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 .score {
   font-size: 24px;

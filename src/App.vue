@@ -12,9 +12,11 @@
     <!-- 游戏界面 -->
     <div v-else class="game-screen">
       <router-view></router-view>
-      <div v-if="showHomeButton" class="home-button" @click="returnHome">
-        返回主界面
-      </div>
+      <transition name="fade">
+        <div v-if="showHomeButton" class="home-button" @click="returnHome">
+          返回主界面
+        </div>
+      </transition>
     </div>
   </div>
 </template>
@@ -74,8 +76,15 @@ export default {
         this.showHomeButton = false;
       }, 3000); // 3秒后隐藏
     },
+    updateShowHome() {
+      this.showHome = this.$route.path === '/';
+    }
   },
   mounted() {
+    this.updateShowHome();
+    this.$router.afterEach(() => {
+      this.updateShowHome();
+    });
     document.addEventListener('touchstart', this.handleTouchStart);
     document.addEventListener('touchmove', this.handleTouchMove);
     document.addEventListener('contextmenu', this.handleContextMenu);
@@ -134,5 +143,18 @@ button {
   padding: 10px 20px;
   font-size: 18px;
   cursor: pointer;
+}
+
+/* 添加过渡动画 */
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.5s, transform 0.5s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+  transform: translateY(-100%) translateX(-50%);
+}
+.fade-enter-to, .fade-leave {
+  opacity: 1;
+  transform: translateY(0) translateX(-50%);
 }
 </style>
