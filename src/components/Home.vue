@@ -16,12 +16,20 @@
       </router-link>
       <!-- 可以继续添加更多游戏入口 -->
     </div>
+    <div class="version">v{{ version }}</div>
   </div>
 </template>
 
 <script>
+import { VERSION } from '../version.js';
+
 export default {
   name: 'HomeView',
+  data() {
+    return {
+      version: VERSION
+    }
+  }
 }
 </script>
 
@@ -113,5 +121,13 @@ h1 {
   .game-card p {
     font-size: 0.65rem;
   }
+}
+
+.version {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.8rem;
+  color: #7f8c8d;
 }
 </style>
