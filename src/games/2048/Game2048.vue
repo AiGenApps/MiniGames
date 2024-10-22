@@ -1,14 +1,18 @@
 <template>
   <div class="game-2048" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
-    <div class="game-info">
-      <h2>2048 游戏</h2>
-      <div class="score">分数: {{ score }}</div>
-      <button @click="newGame">新游戏</button>
-    </div>
-    <div class="grid">
-      <div v-for="(row, rowIndex) in grid" :key="rowIndex" class="row">
-        <div v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :class="['cell-' + cell, { 'new-tile': isNewTile(rowIndex, cellIndex) }]">
-          {{ cell !== 0 ? cell : '' }}
+    <div class="game-content">
+      <div class="game-info">
+        <h2>2048 游戏</h2>
+        <div class="score">分数: {{ score }}</div>
+        <button @click="newGame">新游戏</button>
+      </div>
+      <div class="grid-container">
+        <div class="grid">
+          <div v-for="(row, rowIndex) in grid" :key="rowIndex" class="row">
+            <div v-for="(cell, cellIndex) in row" :key="cellIndex" class="cell" :class="['cell-' + cell, { 'new-tile': isNewTile(rowIndex, cellIndex) }]">
+              {{ cell !== 0 ? cell : '' }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -174,16 +178,22 @@ export default {
 
 <style scoped>
 .game-2048 {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  height: 100vh;
-  max-width: 500px;
-  margin: 0 auto;
+  height: 100%;
   padding: 10px;
   box-sizing: border-box;
   touch-action: none;
+}
+
+.game-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
 }
 
 .game-info {
@@ -191,6 +201,8 @@ export default {
   flex-direction: column;
   align-items: center;
   gap: 10px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 h2 {
@@ -202,24 +214,30 @@ h2 {
   font-size: 1.2rem;
 }
 
+.grid-container {
+  width: 100%;
+  padding-bottom: 100%; /* 创建一个正方形容器 */
+  position: relative;
+}
+
 .grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: grid;
   grid-template-rows: repeat(4, 1fr);
   grid-gap: 2%;
   background-color: #bbada0;
   border-radius: 5px;
   padding: 2%;
-  width: 100%;
-  max-width: 90vmin;
-  aspect-ratio: 1 / 1;
-  margin: 0 auto;
 }
 
 .row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-gap: 2%;
-  height: 100%;
 }
 
 .cell {
@@ -228,10 +246,9 @@ h2 {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;
   font-weight: bold;
   position: relative;
-  aspect-ratio: 1 / 1;
+  font-size: 1.5rem;
 }
 
 .cell-2 { background-color: #eee4da; color: #776e65; }
@@ -265,50 +282,33 @@ button {
   font-size: 1rem;
   padding: 10px 20px;
   cursor: pointer;
+  margin-bottom: 10px;
 }
 
 @media (orientation: landscape) {
-  .game-2048 {
-    grid-template-columns: auto 1fr;
-    grid-template-rows: 1fr;
-    max-width: none;
-    height: 100vh;
-  }
-
-  .game-info {
+  .game-content {
+    flex-direction: row;
     justify-content: center;
+    align-items: center;
+    max-width: none;
+    height: 100%;
   }
 
-  .grid {
-    max-width: 80vh;
-    max-height: 80vh;
-  }
-}
-
-@media (max-height: 600px) and (orientation: portrait) {
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  .score {
-    font-size: 1rem;
-  }
-
-  .cell {
-    font-size: 1rem;
-  }
-
-  button {
-    font-size: 0.9rem;
-    padding: 8px 16px;
-  }
-}
-
-@media (max-width: 600px) and (orientation: landscape) {
   .game-info {
-    font-size: 0.9rem;
+    width: auto;
+    margin-right: 20px;
+    margin-bottom: 0;
   }
 
+  .grid-container {
+    width: auto;
+    height: 80vh;
+    padding-bottom: 0;
+    aspect-ratio: 1 / 1;
+  }
+}
+
+@media (max-height: 600px), (max-width: 400px) {
   h2 {
     font-size: 1.2rem;
   }
