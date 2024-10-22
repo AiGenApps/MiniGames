@@ -34,6 +34,15 @@
           </div>
         </div>
       </div>
+      <div class="game-item">
+        <div class="game-card" @click="(event) => startGame('GoDown', null, event)">
+          <div class="game-icon">🏃</div>
+          <div class="game-info">
+            <h2>GoDown</h2>
+            <p>是男人就下100层</p>
+          </div>
+        </div>
+      </div>
       <!-- 可以继续添加更多游戏入口 -->
     </div>
     <div class="version">v{{ version }}</div>
@@ -311,5 +320,11 @@ h1 {
   .title {
     font-size: 3rem;
   }
+}
+
+/* 为 GoDown 游戏添加特定样式 */
+.game-icon-godown {
+  background-color: #4CAF50;
+  color: white;
 }
 </style>
