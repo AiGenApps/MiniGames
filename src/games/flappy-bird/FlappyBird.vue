@@ -27,13 +27,16 @@ export default {
         width: 34,
         height: 24,
         velocity: 0,
-        baseGravity: 0.2,  // 降低基础重力
-        gravity: 0.2,      // 降低初始重力
+        baseGravity: 0.2,
+        gravity: 0.2,
         jump: -5,
-        rotation: 0, // 新增：小鸟的旋转角度
+        rotation: 0,
+        targetRotation: 0,
       },
-      maxRotation: Math.PI / 6, // 最大旋转角度（30度）
-      rotationSpeed: 0.1, // 旋转速度
+      maxRotation: Math.PI / 4,
+      minRotation: -Math.PI / 3,
+      rotationSpeed: 0.08,
+      rotationLerpFactor: 0.1,
       pipes: [],
       gameLoop: null,
       gameOver: false,
@@ -44,13 +47,13 @@ export default {
       scale: 1,
       pipeGap: 150,
       pipeWidth: 52,
-      basePipeSpawnInterval: 2500, // 基础管道生成间隔（毫秒）
-      minPipeSpawnInterval: 1500, // 最小管道生成间隔（毫秒）
-      pipeSpawnInterval: 2500, // 当前管��生成间隔
+      basePipeSpawnInterval: 2500,
+      minPipeSpawnInterval: 1500,
+      pipeSpawnInterval: 2500,
       lastPipeSpawn: 0,
-      nextPipeSpawn: 0, // 新增：下一个管道生成的时间
-      difficultyFactor: 0.002, // 减小难度增加因子
-      maxGravity: 0.4, // 降低最大重力
+      nextPipeSpawn: 0,
+      difficultyFactor: 0.002,
+      maxGravity: 0.4,
       collidedPipe: null,
       bgX: 0,
       bgSpeed: 0.5,
@@ -120,14 +123,22 @@ export default {
       this.bird.velocity += this.bird.gravity;
       this.bird.y += this.bird.velocity;
 
-      // 更新小鸟的旋转角度
+      // 更新目标旋转角度
       if (this.bird.velocity < 0) {
-        // 小鸟上升时
-        this.bird.rotation = -this.maxRotation;
+        // 上升时快速抬头
+        this.bird.targetRotation = this.minRotation;
       } else {
-        // 小鸟下降时
-        this.bird.rotation = Math.min(this.bird.rotation + this.rotationSpeed, this.maxRotation);
+        // 下降时逐渐低头，速度越快低头越快
+        const fallRotation = Math.min(
+          this.maxRotation,
+          (this.bird.velocity / 10) * this.maxRotation
+        );
+        this.bird.targetRotation = fallRotation;
       }
+
+      // 使用线性插值(LERP)平滑过渡到目标旋转角度
+      const rotationDiff = this.bird.targetRotation - this.bird.rotation;
+      this.bird.rotation += rotationDiff * this.rotationLerpFactor;
 
       // 限制最大下降速度
       if (this.bird.velocity > 10) {
@@ -233,7 +244,8 @@ export default {
         this.startGame();
       } else {
         this.bird.velocity = this.bird.jump * this.scale;
-        this.bird.rotation = -this.maxRotation; // 跳跃时立即将小鸟旋转到最大仰角
+        // 跳跃时立即开始向上旋转，但通过插值系统实现平滑过渡
+        this.bird.targetRotation = this.minRotation;
       }
     },
     endGame() {
